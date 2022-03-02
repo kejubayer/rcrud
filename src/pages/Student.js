@@ -9,7 +9,7 @@ class Student extends Component{
         loading:true,
     }
   async componentDidMount() {
-        const res = await axios.get("http://lcrud.jubayer/api/students");
+        const res = await axios.get("http://lcrud.test/api/students");
       if (res.data.status === 200) {
           this.setState({
               students:res.data.students,
