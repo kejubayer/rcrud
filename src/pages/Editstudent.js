@@ -1,6 +1,7 @@
 import React, {Component} from "react";
 import {Link} from "react-router-dom";
 import axios from "axios";
+import swal from 'sweetalert';
 
 class Editstudent extends Component {
     state = {
@@ -8,6 +9,7 @@ class Editstudent extends Component {
         course: '',
         email: '',
         phone: '',
+        error_list:[],
     }
     handleInput = (e) => {
         this.setState({
@@ -25,6 +27,16 @@ class Editstudent extends Component {
                 phone: res.data.student.phone,
             })
         }
+        else if (res.data.status === 404){
+            swal({
+                title: "Warning!",
+                text: res.data.message,
+                icon: "warning",
+                button: "Ok!",
+            });
+            this.props.history.push('/')
+
+        }
     }
 
     updateStudent = async (e) => {
@@ -34,16 +46,37 @@ class Editstudent extends Component {
         const std_id = this.props.match.params.id;
         const res = await axios.put(`http://lcrud.test/api/edit-student/${std_id}`, this.state);
         if (res.data.status === 200) {
-            console.log(res.data.message);
-            document.getElementById('updatebtn').disabled=false;
-            document.getElementById('updatebtn').innerText="Update"
-
+            // console.log(res.data.message);
+            swal({
+                title: "Updated!",
+                text: res.data.message,
+                icon: "success",
+                button: "Ok!",
+            });
+            // document.getElementById('updatebtn').disabled=false;
+            // document.getElementById('updatebtn').innerText="Update"
+            this.props.history.push('/')
             /* this.setState({
                  name: '',
                  course: '',
                  email: '',
                  phone: '',
              })*/
+        }else if (res.data.status === 404){
+            swal({
+                title: "Warning!",
+                text: res.data.message,
+                icon: "warning",
+                button: "Ok!",
+            });
+            this.props.history.push('/')
+
+        }else{
+            document.getElementById('updatebtn').disabled=false;
+            document.getElementById('updatebtn').innerText="Update"
+            this.setState({
+                error_list:res.data.validator_err,
+            })
         }
     }
 
@@ -66,21 +99,25 @@ class Editstudent extends Component {
                                         <label>Student Name</label>
                                         <input type="text" name="name" onChange={this.handleInput}
                                                value={this.state.name} className="form-control"/>
+                                        <span className="text-danger">{this.state.error_list.name}</span>
                                     </div>
                                     <div className="form-group mb-3">
                                         <label>Student Course</label>
                                         <input type="text" name="course" onChange={this.handleInput}
                                                value={this.state.course} className="form-control"/>
+                                        <span className="text-danger">{this.state.error_list.course}</span>
                                     </div>
                                     <div className="form-group mb-3">
                                         <label>Student Email</label>
                                         <input type="email" name="email" onChange={this.handleInput}
                                                value={this.state.email} className="form-control"/>
+                                        <span className="text-danger">{this.state.error_list.email}</span>
                                     </div>
                                     <div className="form-group mb-3">
                                         <label>Student Phone</label>
                                         <input type="text" name="phone" onChange={this.handleInput}
                                                value={this.state.phone} className="form-control"/>
+                                        <span className="text-danger">{this.state.error_list.phone}</span>
                                     </div>
                                     <div className="form-group mb-3">
                                         <button type="submit" id="updatebtn" className="btn btn-primary">Update</button>

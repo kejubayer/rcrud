@@ -1,6 +1,7 @@
 import React, {Component} from "react";
 import {Link} from "react-router-dom";
 import axios from "axios";
+import swal from "sweetalert";
 
 class Student extends Component{
 
@@ -16,7 +17,22 @@ class Student extends Component{
               loading:false,
           })
       }
+    }
 
+     deleteStudent = async (e, id)=>{
+        const thisClickedBtn = e.currentTarget;
+         thisClickedBtn.innerText="Deleting";
+        const res = await axios.delete(`http://lcrud.test/api/delete-student/${id}`);
+         if (res.data.status === 200) {
+             thisClickedBtn.closest("tr").remove();
+             // console.log(res.data.message)
+             swal({
+                 title: "Deleted!",
+                 text: res.data.message,
+                 icon: "success",
+                 button: "Ok!",
+             });
+         }
     }
 
 
@@ -26,10 +42,10 @@ class Student extends Component{
             student_htmltable = <tr><td colSpan="7"><h2>Loading......</h2></td></tr>;
         }else {
             student_htmltable =
-                this.state.students.map((item)=>{
+                this.state.students.map((item, index)=>{
                     return (
                       <tr key={item.id}>
-                          <td>{item.id}</td>
+                          <td>{index+1}</td>
                           <td>{item.name}</td>
                           <td>{item.course}</td>
                           <td>{item.email}</td>
@@ -38,7 +54,7 @@ class Student extends Component{
                               <Link to={`edit-student/${item.id}`} className="btn btn-warning btn-sm">Edit</Link>
                           </td>
                           <td>
-                              <button type="button" className="btn btn-danger btn-sm">Delete</button>
+                              <button type="button" onClick={(e)=>this.deleteStudent(e, item.id)} className="btn btn-danger btn-sm">Delete</button>
                           </td>
                       </tr>
                     );
